@@ -14,8 +14,13 @@
       --muted: #667085;
       --card: #ffffff;
       --glass: rgba(255,255,255,0.65);
+      --spinner-duration: 5s;
     }
-    * {box-sizing: border-box;}
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Inter, system-ui, Arial, sans-serif;
       margin: 0;
@@ -27,6 +32,7 @@
       padding: 28px;
       color: #071126;
     }
+
     .card {
       width: 100%;
       max-width: 980px;
@@ -36,24 +42,26 @@
       box-shadow: 0 14px 40px rgba(6,18,40,0.08);
       text-align: center;
     }
-    header {margin-bottom: 8px;}
+
+    header { margin-bottom: 8px; }
     h1 {
       margin: 0;
       font-weight: 800;
       font-size: 20px;
     }
+
     p.lead {
       margin: 6px 0 18px;
       color: var(--muted);
     }
 
-    /* Roleta */
     .wheel-wrap {
       position: relative;
       margin: 18px auto 6px;
       width: var(--size);
       height: var(--size);
     }
+
     .wheel {
       width: 100%;
       height: 100%;
@@ -62,36 +70,13 @@
       overflow: hidden;
       border: 8px solid #fff;
       box-shadow: 0 10px 30px rgba(6,18,40,0.06);
-      transition: transform 5s cubic-bezier(.12,.78,.34,1);
+      transition: transform var(--spinner-duration) cubic-bezier(.12,.78,.34,1);
       will-change: transform;
       background: conic-gradient(
         #ffd166 0 12.5%, #8ec5ff 12.5% 25%, #98e37b 25% 37.5%, #ff9bd3 37.5% 50%,
         #ffd166 50% 62.5%, #8ec5ff 62.5% 75%, #98e37b 75% 87.5%, #ff9bd3 87.5% 100%);
     }
-    .sector {
-      --i: 0;
-      position: absolute;
-      inset: 0;
-      transform: rotate(calc(var(--i) * 45deg));
-      transform-origin: 50% 50%;
-      pointer-events: none;
-    }
-    .sector .slice {
-      position: absolute;
-      width: 50%;
-      height: 50%;
-      left: 50%;
-      top: 0;
-      transform-origin: 0% 100%;
-      transform: rotate(22.5deg);
-      display: flex;
-      align-items: flex-end;
-      justify-content: flex-start;
-      padding: 12px;
-      font-weight: 800;
-      color: #07203a;
-      text-shadow: 0 1px 0 rgba(255,255,255,0.15);
-    }
+
     .center {
       position: absolute;
       left: 50%;
@@ -109,6 +94,7 @@
       cursor: pointer;
       user-select: none;
     }
+
     .pointer {
       position: absolute;
       left: 50%;
@@ -121,9 +107,11 @@
       border-bottom: 26px solid var(--primary);
       filter: drop-shadow(0 4px 8px rgba(0,0,0,0.12));
     }
+
     .controls {
       margin-top: 18px;
     }
+
     .btn {
       display: inline-flex;
       gap: 10px;
@@ -137,17 +125,13 @@
       cursor: pointer;
       box-shadow: 0 10px 28px rgba(255,90,95,0.12);
     }
-    .btn.secondary {
-      background: #eef1f6;
-      color: #0b1720;
-    }
+
     footer {
       margin-top: 18px;
       color: var(--muted);
       font-size: 13px;
     }
 
-    /* Modal */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -158,6 +142,7 @@
       z-index: 60;
       padding: 20px;
     }
+
     .modal {
       background: var(--card);
       width: 100%;
@@ -166,30 +151,24 @@
       padding: 18px;
       text-align: center;
     }
+
     .modal h2 {
       margin: 6px 0 8px;
     }
+
     .modal .amount {
       font-size: 26px;
       font-weight: 900;
       color: var(--accent);
       margin-bottom: 6px;
     }
+
     .modal .small {
       color: var(--muted);
       font-size: 13px;
       margin-bottom: 8px;
     }
-    #qrCode {
-      margin: 12px auto;
-      display: block;
-      width: 260px;
-      height: 260px;
-      padding: 8px;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 8px 20px rgba(3,10,18,0.06);
-    }
+
     .inline-copy {
       display: flex;
       gap: 8px;
@@ -198,6 +177,7 @@
       margin-top: 8px;
       flex-wrap: wrap;
     }
+
     .chip {
       background: #f7fafb;
       border: 1px solid #eef2f6;
@@ -206,6 +186,7 @@
       font-weight: 600;
       color: #102a43;
     }
+
     .actions {
       display: flex;
       gap: 10px;
@@ -213,6 +194,7 @@
       margin-top: 12px;
       flex-wrap: wrap;
     }
+
     .muted-note {
       font-size: 13px;
       color: #8b98a8;
@@ -223,10 +205,7 @@
       :root {
         --size: 300px;
       }
-      #qrCode {
-        width: 220px;
-        height: 220px;
-      }
+
       .center {
         width: 110px;
         height: 110px;
@@ -238,17 +217,36 @@
   <div class="card" id="app">
     <header>
       <h1>Roleta de Sorteios — Prêmios R$450, R$500, R$700 e R$1.000</h1>
-      <p class="lead">Gire a roleta para ganhar prêmios em dinheiro! Após o sorteio, uma taxa de R$29,90 será cobrada para liberar o pagamento do prêmio via Pix.</p>
+      <p class="lead">Gire a roleta para ganhar prêmios reais! Após o sorteio, uma taxa de R$29,90 será cobrada para liberar o pagamento do prêmio via Pix.</p>
     </header>
 
     <main>
-      <div class="wheel-wrap" aria-hidden="false">
-        <div class="pointer" aria-hidden="true"></div>
-        <div class="wheel" id="wheel" role="img" aria-label="Roleta de prêmios"></div>
-        <div class="center" id="centerButton" role="button" tabindex="0" aria-label="Girar a roleta">GIRAR</div>
+      <div class="wheel-wrap">
+        <div class="pointer"></div>
+        <div class="wheel" id="wheel"></div>
+        <div class="center" id="centerButton">GIRAR</div>
       </div>
 
       <div class="controls">
-        <button class="btn" id="spinBtn" aria-label="Girar roleta">Girar
+        <button class="btn" id="spinBtn">Girar</button>
+      </div>
+    </main>
 
-        
+    <footer>
+      <p class="muted-note">Ganhos reais e verídicos. A taxa de R$29,90 será cobrada apenas após o prêmio ser confirmado.</p>
+    </footer>
+  </div>
+
+  <script>
+    const spinBtn = document.getElementById('spinBtn');
+    const wheel = document.getElementById('wheel');
+    const centerButton = document.getElementById('centerButton');
+
+    // Prêmios
+    const premios = [450, 500, 700, 1000];
+
+    // Função para girar a roleta
+    const girarRoleta = () => {
+      const valorSorteado = premios[Math.floor(Math.random() * premios.length)];
+      const grau = Math.floor
+    
