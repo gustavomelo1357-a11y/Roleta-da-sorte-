@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Roleta - Demo Legítimo</title>
+<style>
+:root { --size: 360px; }
+body {
+  font-family: Inter, system-ui, Arial;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #f4f6f8;
+  margin: 0;
+}
+.container {
+  width: 100%;
+  max-width: 900px;
+  padding: 24px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 6px 30px rgba(20,30,40,0.08);
+  text-align: center;
+}
+h1 { margin: 0 0 8px; }
+.wheel-wrap {
+  position: relative;
+  margin: 24px auto 12px;
+  width: var(--size);
+  height: var(--size);
+}
+.wheel {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: relative;
+  transition: transform 5s cubic-bezier(.12,.78,.34,1);
+  overflow: hidden;
+  border: 8px solid #fff;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+.sector {
+  --i: 0;
+  position: absolute;
+  inset: 0;
+  transform: rotate(calc(var(--i) * 45deg));
+  transform-origin: 50% 50%;
+}
+.sector > .slice {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  left: 50%;
+  top: 0;
+  transform-origin: 0% 100%;
+  transform: rotate(22.5deg);
+  border-top-left-radius: 180px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  padding: 10px;
+  box-sizing: border-box;
+  color: #111;
+  font-weight: 700;
+}
+.slice.color-1 { background: linear-gradient(180deg, #ffefc1, #ffd166); }
+.slice.color-2 { background: linear-gradient(180deg, #d0e8ff, #8ec5ff); }
+.slice.color-3 { background: linear-gradient(180deg, #e4ffd6, #98e37b); }
+.slice.color-4 { background: linear-gradient(180deg, #ffd6f0, #ff9bd3); }
+.center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  font-weight: 700;
+}
+.pointer {
+  position: absolute;
+  left: 50%;
+  top: -14px;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 16px solid transparent;
+  border-right: 16px solid transparent;
+  border-bottom: 22px solid #ff5a5f;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+}
+.controls { margin-top: 18px; }
+button {
+  background: #ff5a5f;
+  color: white;
+  border: 0;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(255,90,95,0.12);
+}
+button:disabled { opacity: .5; cursor: default; box-shadow: none; }
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+.modal {
+  background: white;
+  width: 92%;
+  max-width: 420px;
+  padding: 18px;
+  border-radius: 10px;
+  text-align: center;
+}
+.modal h2 { margin: 6px 0 12px; }
+.modal .amount {
+  font-size: 28px;
+  font-weight: 900;
+  color: #0a7f3b;
+  margin-bottom: 12px;
+}
+.small { font-size: 13px; color: #555; }
+.row { display: flex; gap: 10px; justify-content: center; margin-top: 12px; }
+.btn-secondary { background: #eef1f6; color: #111; padding: 10px 12px; border-radius: 8px; }
+footer { margin-top: 18px; font-size: 12px; color: #666; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Roleta - Demo</h1>
+  <p>Gire a roleta e veja quanto você ganha. Este é um exemplo legítimo / demo.</p>
+
+  <div class="wheel-wrap">
+    <div class="pointer" aria-hidden="true"></div>
+    <div class="wheel" id="wheel" role="img" aria-label="roleta"></div>
+    <div class="center">Gire</div>
+  </div>
+
+  <div class="controls">
+    <button id="spinBtn">Girar Roleta</button>
+  </div>
+
+  <footer>Valores: 50, 100, 200, 300, 400, 3000, 5000, 10000</footer>
+</div>
+
+<div id="modal" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal" role="document">
+    <h2 id="modalTitle">Parabéns!</h2>
+    <div class="amount" id="prizeAmount">R$ 0</div>
+    <div class="small" id="modalText">Você ganhou um prêmio.</div>
+    <div class="row">
+      <button id="closeBtn" class="btn-secondary">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confete incluído -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<script>
+const prizes = [50, 100, 200, 300, 400, 3000, 5000, 10000];
+const wheel = document.getElementById('wheel');
+const spinBtn = document.getElementById('spinBtn');
+const modal = document.getElementById('modal');
+const prizeAmount = document.getElementById('prizeAmount');
+const closeBtn = document.getElementById('closeBtn');
+
+// Som de clique
+const clickSound = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
+
+// Cria setores
+prizes.forEach((val, i) => {
+  const sector = document.createElement('div');
+  sector.className = 'sector';
+  sector.style.setProperty('--i', i);
+  const slice = document.createElement('div');
+  slice.className = `slice color-${(i % 4) + 1}`;
+  slice.textContent = `R$ ${val}`;
+  sector.appendChild(slice);
+  wheel.appendChild(sector);
+});
+
+let spinning = false;
+let currentRotation = 0;
+
+spinBtn.addEventListener('click', () => {
+  if(spinning) return;
+  spinning = true;
+  spinBtn.disabled = true;
+
+  const randomIndex = Math.floor(Math.random() * prizes.length);
+  const segmentAngle = 360 / prizes.length;
+  const stopAngle = (randomIndex * segmentAngle) + (segmentAngle / 2);
+  const extraSpins = 360 * 5;
+  const targetRotation = extraSpins + (360 - stopAngle);
+
+  currentRotation += targetRotation;
+  wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+  let clickInterval = setInterval(() => clickSound.play(), 200);
+
+  setTimeout(() => {
+    clearInterval(clickInterval);
+    spinning = false;
+    spinBtn.disabled = false;
+    prizeAmount.textContent = `R$ ${prizes[randomIndex]}`;
+    modal.style.display = 'flex';
+    if(window.confetti){
+      confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+    }
+  }, 5200);
+});
+
+closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
+</script>
+</body>
+  </html>
+  
